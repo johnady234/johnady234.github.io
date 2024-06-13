@@ -1,35 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Title</title>
-    <style>
-      body {
-        color: white;
-        background-color: black;
-      }
-      input {
-        height: 80px;
-      }
-    </style>
-  </head>
-  <body>
-    <p>TEXT</p>
-    <input type="text" placeholder="INPUT" />
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker
-            .register("/service-worker.js")
-            .then((registration) => {
-              console.log("Service Worker registered:", registration);
-            })
-            .catch((error) => {
-              console.error("Service Worker registration failed:", error);
-            });
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWA Пример</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    input[type="text"] {
+      width: 300px;
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 5px;
+      border: 1px solid white;
+      background-color: #333;
+      color: white;
+      font-size: 16px;
+      outline: none;
+    }
+    input[type="text"]:focus {
+      border-color: #4CAF50;
+    }
+  </style>
+  <link rel="manifest" href="/manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('Service Worker registered:', registration);
+          })
+          .catch(error => {
+            console.error('Service Worker registration failed:', error);
+          });
+      });
+    }
+
+    // Проверка на возможность установки PWA
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Предотвращаем открытие встроенного диалогового окна установки PWA
+      e.preventDefault();
+      // Сохраняем событие для использования его позже
+      deferredPrompt = e;
+      // Показываем пользователю кнопку или другой элемент, чтобы предложить установить PWA
+      showInstallPrompt();
+    });
+
+    function showInstallPrompt() {
+      const installButton = document.createElement('button');
+      installButton.textContent = 'Установить приложение';
+      installButton.style.background = '#4CAF50';
+      installButton.style.color = 'white';
+      installButton.style.border = 'none';
+      installButton.style.padding = '10px 20px';
+      installButton.style.borderRadius = '5px';
+      installButton.style.cursor = 'pointer';
+      installButton.addEventListener('click', () => {
+        // Показываем встроенное диалоговое окно установки PWA
+        deferredPrompt.prompt();
+        // Ждем ответа от пользователя
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('Пользователь согласился установить PWA');
+          } else {
+            console.log('Пользователь отклонил установку PWA');
+          }
+          // Очищаем deferredPrompt, так как обработка события завершена
+          deferredPrompt = null;
         });
-      }
-    </script>
-  </body>
+      });
+
+      document.body.appendChild(installButton);
+    }
+  </script>
+  <link rel="manifest" href="#manifest.json">
+ <script>
+           const manifest = {
+  "name": "Мое PWA Приложение",
+  "short_name": "PWA Приложение",
+  "description": "Пример PWA приложения без дополнительных кнопок",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#4CAF50"
+};
+</script>
+</head>
+<body>
+  <p>Пример PWA с возможностью установки</p>
+  <input type="text" placeholder="Введите что-нибудь...">
+</body>
 </html>
